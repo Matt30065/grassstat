@@ -3,150 +3,85 @@ function show(name){
   screens.forEach(s=>s.classList.toggle('is-active',s.dataset.screen===name));
   location.hash=name;
   window.scrollTo(0,0);
-  if(name==='kit'&&kitViewer) requestAnimationFrame(()=>kitViewer.resize());
-  if(name==='player'&&playerViewer) requestAnimationFrame(()=>playerViewer.resize());
 }
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.nav)));
 
-let activeKit='home',activeView='front';
 const kits={
   home:{pattern:'stripes',primary:'#17354e',secondary:'#f3f4f4',accent:'#d6b054'},
   away:{pattern:'plain',primary:'#d6b054',secondary:'#17354e',accent:'#f3f4f4'}
 };
-const inputs={primary:document.getElementById('colour-primary'),secondary:document.getElementById('colour-secondary'),accent:document.getElementById('colour-accent')};
-const chips={primary:document.getElementById('primary-chip'),secondary:document.getElementById('secondary-chip'),accent:document.getElementById('accent-chip')};
+let activeKit='home';
+let activeView='front';
 
-function buildTextureCanvas(cfg,size=1024){
-  const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');
-  const p=cfg.primary,s=cfg.secondary,a=cfg.accent;
-  x.fillStyle=p;x.fillRect(0,0,size,size);
-  if(cfg.pattern==='plain'){
-    // plain body with a restrained accent band so all three chosen colours remain visible
-    x.fillStyle=s;x.fillRect(0,0,size,size*.10);x.fillStyle=a;x.fillRect(0,size*.10,size,size*.025);
-  }
-  if(cfg.pattern==='stripes'){
-    const stripe=size/7;
-    for(let i=0;i<8;i++){x.fillStyle=i%2?s:p;x.fillRect(i*stripe,0,stripe+2,size);}
-    x.fillStyle=a;for(let i=1;i<8;i++)x.fillRect(i*stripe-3,0,6,size);
-  }
-  if(cfg.pattern==='hoops'){
-    const band=size/8;
-    for(let i=0;i<8;i++){x.fillStyle=i%2?s:p;x.fillRect(0,i*band,size,band+2);}
-    x.fillStyle=a;for(let i=1;i<8;i+=2)x.fillRect(0,i*band-3,size,6);
-  }
-  if(cfg.pattern==='halves'){
-    x.fillStyle=p;x.fillRect(0,0,size/2,size);x.fillStyle=s;x.fillRect(size/2,0,size/2,size);x.fillStyle=a;x.fillRect(size/2-5,0,10,size);
-  }
-  if(cfg.pattern==='sash'){
-    x.fillStyle=s;x.fillRect(0,0,size,size);x.save();x.translate(size*.5,size*.5);x.rotate(-Math.PI/5.4);x.fillStyle=a;x.fillRect(-size*.15,-size,size*.30,size*2);x.fillStyle=p;x.fillRect(-size*.115,-size,size*.23,size*2);x.restore();
-  }
-  // subtle fabric weave that remains visible under studio lighting
-  x.globalAlpha=.07;
-  x.strokeStyle='#ffffff';
-  for(let y=0;y<size;y+=6){x.beginPath();x.moveTo(0,y);x.lineTo(size,y+2);x.stroke();}
-  x.strokeStyle='#000000';x.globalAlpha=.035;
-  for(let x0=0;x0<size;x0+=8){x.beginPath();x.moveTo(x0,0);x.lineTo(x0+3,size);x.stroke();}
-  x.globalAlpha=1;
-  return c;
+const inputs={
+  primary:document.getElementById('colour-primary'),
+  secondary:document.getElementById('colour-secondary'),
+  accent:document.getElementById('colour-accent')
+};
+const chips={
+  primary:document.getElementById('primary-chip'),
+  secondary:document.getElementById('secondary-chip'),
+  accent:document.getElementById('accent-chip')
+};
+const kitRenderer=document.getElementById('kit-renderer');
+const playerShirt=document.getElementById('player-shirt');
+
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+
+function patternDefs(cfg,id){
+  const p=esc(cfg.primary),s=esc(cfg.secondary),a=esc(cfg.accent);
+  if(cfg.pattern==='plain') return `<linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${p}"/><stop offset=".52" stop-color="${p}"/><stop offset="1" stop-color="${p}"/></linearGradient>`;
+  if(cfg.pattern==='stripes') return `<pattern id="${id}" width="64" height="64" patternUnits="userSpaceOnUse"><rect width="32" height="64" fill="${p}"/><rect x="32" width="32" height="64" fill="${s}"/><rect x="29" width="6" height="64" fill="${a}" opacity=".72"/></pattern>`;
+  if(cfg.pattern==='hoops') return `<pattern id="${id}" width="64" height="64" patternUnits="userSpaceOnUse"><rect width="64" height="32" fill="${p}"/><rect y="32" width="64" height="32" fill="${s}"/><rect y="29" width="64" height="6" fill="${a}" opacity=".72"/></pattern>`;
+  if(cfg.pattern==='halves') return `<linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${p}"/><stop offset=".49" stop-color="${p}"/><stop offset=".49" stop-color="${a}"/><stop offset=".51" stop-color="${a}"/><stop offset=".51" stop-color="${s}"/><stop offset="1" stop-color="${s}"/></linearGradient>`;
+  return `<pattern id="${id}" width="360" height="360" patternUnits="userSpaceOnUse"><rect width="360" height="360" fill="${s}"/><polygon points="-40,360 70,360 400,0 290,0" fill="${p}"/><polygon points="58,360 72,360 402,0 388,0" fill="${a}" opacity=".85"/></pattern>`;
 }
 
-class JerseyViewer{
-  constructor(host,{player=false}={}){
-    this.host=host;this.player=player;this.ready=false;this.drag=false;this.lastX=0;this.rotationY=0;this.cameraZ=player?4.25:4.5;
-    if(!host||!window.THREE)return;
-    const T=window.THREE;
-    this.renderer=new T.WebGLRenderer({alpha:true,antialias:true,preserveDrawingBuffer:true});
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
-    this.renderer.outputColorSpace=T.SRGBColorSpace;
-    this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.12;
-    this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFSoftShadowMap;
-    host.appendChild(this.renderer.domElement);
-    this.scene=new T.Scene();
-    this.camera=new T.PerspectiveCamera(player?28:31,1,.1,100);this.camera.position.set(0,.08,this.cameraZ);
-    this.group=new T.Group();this.scene.add(this.group);
-    this.texture=new T.CanvasTexture(buildTextureCanvas(kits.home));this.texture.colorSpace=T.SRGBColorSpace;this.texture.wrapS=this.texture.wrapT=T.RepeatWrapping;this.texture.anisotropy=8;
-    this.material=new T.MeshPhysicalMaterial({map:this.texture,roughness:.68,metalness:.02,clearcoat:.08,clearcoatRoughness:.72,side:T.DoubleSide});
-    this.darkMat=new T.MeshStandardMaterial({color:0x08131b,roughness:.82,metalness:.03});
-    this.buildJersey();
-    this.addLights();this.bind();this.resize();this.ready=true;this.animate();
-  }
-  addLights(){
-    const T=window.THREE;
-    this.scene.add(new T.HemisphereLight(0xbfe8ff,0x061018,1.35));
-    const key=new T.DirectionalLight(0xffe0a3,3.25);key.position.set(3.2,4.6,5.4);key.castShadow=true;this.scene.add(key);
-    const fill=new T.DirectionalLight(0x9fd8ff,1.85);fill.position.set(-4,2.2,4.1);this.scene.add(fill);
-    const rim=new T.DirectionalLight(0x7fc8ff,2.3);rim.position.set(0,3.2,-5);this.scene.add(rim);
-    const low=new T.PointLight(0xffffff,.65,12);low.position.set(0,-2.2,3);this.scene.add(low);
-  }
-  buildJersey(){
-    const T=window.THREE;
-    // torso: athletic football cut, gently tapered waist, slightly wider hem
-    const rings=28,segs=56,pos=[],uv=[],idx=[];
-    for(let r=0;r<=rings;r++){
-      const t=r/rings;const y=1.12-t*2.38;
-      let rx,rz;
-      if(t<.20){const q=t/.20;rx=T.MathUtils.lerp(.55,.79,Math.sin(q*Math.PI/2));rz=T.MathUtils.lerp(.31,.43,Math.sin(q*Math.PI/2));}
-      else if(t<.65){const q=(t-.20)/.45;rx=T.MathUtils.lerp(.79,.66,q);rz=T.MathUtils.lerp(.43,.36,q);}
-      else{const q=(t-.65)/.35;rx=T.MathUtils.lerp(.66,.72,q);rz=T.MathUtils.lerp(.36,.39,q);}
-      for(let s=0;s<=segs;s++){
-        const th=s/segs*Math.PI*2;const cs=Math.cos(th),sn=Math.sin(th);
-        let x=cs*rx,z=sn*rz;
-        if(sn>0&&t>.14&&t<.58)z+=.045*Math.sin((t-.14)/.44*Math.PI)*Math.pow(sn,1.4);
-        pos.push(x,y,z);uv.push(s/segs,1-t);
-      }
-    }
-    for(let r=0;r<rings;r++)for(let s=0;s<segs;s++){const a=r*(segs+1)+s,b=a+1,c=(r+1)*(segs+1)+s,d=c+1;idx.push(a,c,b,b,c,d);}
-    const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
-    const torso=new T.Mesh(g,this.material);torso.castShadow=torso.receiveShadow=true;this.group.add(torso);
-    // short football sleeves, tapered and slightly down/out from shoulder
-    [-1,1].forEach(side=>{
-      const sg=new T.CylinderGeometry(.23,.31,.82,32,8,true);const sm=new T.Mesh(sg,this.material);sm.castShadow=sm.receiveShadow=true;
-      sm.position.set(side*.82,.78,0);sm.rotation.z=side*.92;sm.rotation.x=-.08;this.group.add(sm);
-      const cuff=new T.Mesh(new T.CylinderGeometry(.235,.235,.055,32,1,true),this.material);cuff.position.set(side*1.13,.54,0);cuff.rotation.z=side*.92;this.group.add(cuff);
-    });
-    // clean fixed crew collar / inner neck, not configurable in this proof
-    const collar=new T.Mesh(new T.TorusGeometry(.33,.055,14,52),this.darkMat);collar.rotation.x=Math.PI/2;collar.scale.set(1,.82,1);collar.position.y=1.08;this.group.add(collar);
-    // lower inner shadow gives more garment depth
-    this.group.rotation.x=-.03;
-  }
-  update(cfg){
-    if(!this.texture)return;const c=buildTextureCanvas(cfg);this.texture.image=c;this.texture.needsUpdate=true;
-  }
-  setView(view){
-    const target=view==='front'?0:view==='side'?-Math.PI/2:Math.PI;this.rotationY=target;
-  }
-  resize(){
-    if(!this.renderer)return;const r=this.host.getBoundingClientRect();if(r.width<2||r.height<2)return;this.renderer.setSize(r.width,r.height,false);this.camera.aspect=r.width/r.height;this.camera.updateProjectionMatrix();
-  }
-  bind(){
-    const el=this.renderer.domElement;
-    el.addEventListener('pointerdown',e=>{this.drag=true;this.lastX=e.clientX;el.setPointerCapture?.(e.pointerId)});
-    el.addEventListener('pointermove',e=>{if(!this.drag)return;const dx=e.clientX-this.lastX;this.lastX=e.clientX;this.rotationY+=dx*.012});
-    el.addEventListener('pointerup',()=>this.drag=false);el.addEventListener('pointercancel',()=>this.drag=false);
-    el.addEventListener('wheel',e=>{e.preventDefault();this.cameraZ=Math.max(3.45,Math.min(5.7,this.cameraZ+e.deltaY*.0026));this.camera.position.z=this.cameraZ},{passive:false});
-    window.addEventListener('resize',()=>this.resize());
-  }
-  animate(){
-    if(!this.renderer)return;requestAnimationFrame(()=>this.animate());
-    this.group.rotation.y+=(this.rotationY-this.group.rotation.y)*.12;
-    this.renderer.render(this.scene,this.camera);
-  }
+function shirtSvg(cfg,view='front',compact=false){
+  const uid=`p${Math.random().toString(36).slice(2,9)}`;
+  const patternId=`pat-${uid}`;
+  const size=compact?'320':'520';
+  const p=esc(cfg.primary),a=esc(cfg.accent);
+  const bodyFront=`M138 104 C158 85 181 73 205 68 L233 56 L287 56 L315 68 C339 73 362 85 382 104 L452 156 L420 238 L365 205 L354 438 Q260 466 166 438 L155 205 L100 238 L68 156 Z`;
+  const bodyBack=`M138 104 C158 85 181 73 205 68 L233 56 L287 56 L315 68 C339 73 362 85 382 104 L452 156 L420 238 L365 205 L354 438 Q260 466 166 438 L155 205 L100 238 L68 156 Z`;
+  const side=`M212 83 C237 70 266 66 292 74 L333 93 L390 143 L359 224 L320 204 L323 432 Q259 452 197 430 L181 190 L123 218 L94 152 L156 105 Z`;
+  const path=view==='side'?side:(view==='back'?bodyBack:bodyFront);
+  const neck=view==='back'?`M225 60 Q260 78 295 60 L289 94 Q260 105 231 94 Z`:`M226 60 L260 102 L294 60 Q260 48 226 60 Z`;
+  const number=view==='back'?`<text x="260" y="272" text-anchor="middle" fill="rgba(255,255,255,.86)" font-family="Arial, sans-serif" font-size="96" font-weight="800" style="paint-order:stroke;stroke:rgba(0,0,0,.18);stroke-width:3">10</text>`:'';
+  return `<svg viewBox="0 0 520 500" width="100%" height="100%" role="img" aria-label="${view} kit preview" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      ${patternDefs(cfg,patternId)}
+      <linearGradient id="shade-${uid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".38"/><stop offset=".18" stop-color="#fff" stop-opacity=".05"/><stop offset=".5" stop-color="#fff" stop-opacity=".16"/><stop offset=".82" stop-color="#000" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></linearGradient>
+      <linearGradient id="vert-${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></linearGradient>
+      <filter id="fabric-${uid}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" seed="8" result="noise"/><feColorMatrix in="noise" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .075 0" result="grain"/><feBlend in="SourceGraphic" in2="grain" mode="multiply"/></filter>
+      <clipPath id="clip-${uid}"><path d="${path}"/></clipPath>
+    </defs>
+    <g filter="url(#fabric-${uid})">
+      <path d="${path}" fill="url(#${patternId})"/>
+      <g clip-path="url(#clip-${uid})">
+        <rect x="60" y="40" width="410" height="420" fill="url(#shade-${uid})"/>
+        <rect x="60" y="40" width="410" height="420" fill="url(#vert-${uid})"/>
+        <path d="M162 206 Q260 245 358 206" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="8"/>
+        <path d="M178 302 Q260 332 342 302" fill="none" stroke="#000" stroke-opacity=".07" stroke-width="7"/>
+        <path d="M206 86 Q225 190 218 420" fill="none" stroke="#fff" stroke-opacity=".055" stroke-width="5"/>
+        <path d="M314 86 Q295 190 302 420" fill="none" stroke="#000" stroke-opacity=".07" stroke-width="5"/>
+      </g>
+      <path d="${path}" fill="none" stroke="#07151f" stroke-opacity=".72" stroke-width="5"/>
+      <path d="${neck}" fill="#07151f" stroke="${a}" stroke-width="7" stroke-linejoin="round"/>
+      <path d="M81 157 L108 225" stroke="${a}" stroke-width="11" stroke-linecap="round" opacity=".88"/>
+      <path d="M439 157 L412 225" stroke="${a}" stroke-width="11" stroke-linecap="round" opacity=".88"/>
+      ${number}
+    </g>
+  </svg>`;
 }
 
-let kitViewer=null,playerViewer=null;
-const kitHost=document.getElementById('kit-3d'),playerHost=document.getElementById('player-kit-3d'),fallback=document.getElementById('kit-fallback');
-if(window.THREE){
-  kitViewer=new JerseyViewer(kitHost);playerViewer=new JerseyViewer(playerHost,{player:true});fallback.style.display='none';
-}else{
-  kitHost.classList.add('is-fallback');fallback.style.display='block';
-}
-function updateKit(){
-  const cfg=kits[activeKit];
-  kitViewer?.update(cfg);kitViewer?.setView(activeView);playerViewer?.update(kits.home);playerViewer?.setView('front');
+function renderKit(){
+  kitRenderer.innerHTML=shirtSvg(kits[activeKit],activeView,false);
+  playerShirt.innerHTML=shirtSvg(kits.home,'front',true);
   document.querySelectorAll('[data-kit]').forEach(b=>b.classList.toggle('active',b.dataset.kit===activeKit));
   document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===activeView));
-  if(!kitViewer){fallback.src=`kit-${activeKit}-${activeView}.png`;}
 }
+
 function updatePatternPreviews(){
   const cfg=kits[activeKit],p=cfg.primary,s=cfg.secondary,a=cfg.accent;
   document.querySelectorAll('[data-pattern]').forEach(btn=>{
@@ -158,29 +93,45 @@ function updatePatternPreviews(){
     el.style.background=bg;
   });
 }
+
 function syncControls(){
-  const cfg=kits[activeKit];Object.keys(inputs).forEach(k=>{inputs[k].value=cfg[k];chips[k].textContent=cfg[k].toUpperCase()});
-  document.querySelectorAll('[data-pattern]').forEach(b=>b.classList.toggle('selected',b.dataset.pattern===cfg.pattern));updatePatternPreviews();updateKit();
+  const cfg=kits[activeKit];
+  Object.keys(inputs).forEach(k=>{inputs[k].value=cfg[k];chips[k].textContent=cfg[k].toUpperCase();});
+  document.querySelectorAll('[data-pattern]').forEach(b=>b.classList.toggle('selected',b.dataset.pattern===cfg.pattern));
+  updatePatternPreviews();renderKit();
 }
-document.querySelectorAll('[data-kit]').forEach(b=>b.addEventListener('click',()=>{activeKit=b.dataset.kit;activeView='front';syncControls()}));
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{activeView=b.dataset.view;updateKit()}));
-document.querySelectorAll('[data-view-dir]').forEach(b=>b.addEventListener('click',()=>{const order=['front','side','back'];activeView=order[(order.indexOf(activeView)+Number(b.dataset.viewDir)+order.length)%order.length];updateKit()}));
-document.querySelectorAll('[data-pattern]').forEach(b=>b.addEventListener('click',()=>{kits[activeKit].pattern=b.dataset.pattern;syncControls()}));
-Object.entries(inputs).forEach(([k,input])=>input.addEventListener('input',()=>{kits[activeKit][k]=input.value;syncControls()}));
+
+document.querySelectorAll('[data-kit]').forEach(b=>b.addEventListener('click',()=>{activeKit=b.dataset.kit;activeView='front';syncControls();}));
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{activeView=b.dataset.view;renderKit();}));
+document.querySelectorAll('[data-view-dir]').forEach(b=>b.addEventListener('click',()=>{
+  const views=['front','side','back'];let i=views.indexOf(activeView);i=(i+Number(b.dataset.viewDir)+views.length)%views.length;activeView=views[i];renderKit();
+}));
+document.querySelectorAll('[data-pattern]').forEach(b=>b.addEventListener('click',()=>{kits[activeKit].pattern=b.dataset.pattern;syncControls();}));
+Object.entries(inputs).forEach(([k,input])=>input.addEventListener('input',()=>{kits[activeKit][k]=input.value;syncControls();}));
+
 document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{
-  const map={classic:{pattern:'stripes',primary:'#17354e',secondary:'#f3f4f4',accent:'#d6b054'},hoops:{pattern:'hoops',primary:'#16843f',secondary:'#f2f2ee',accent:'#111417'},redblack:{pattern:'stripes',primary:'#bb2436',secondary:'#14171b',accent:'#f2f2ee'}};
-  Object.assign(kits[activeKit],map[b.dataset.preset]);syncControls();
+  if(b.dataset.preset==='classic')Object.assign(kits[activeKit],{pattern:'stripes',primary:'#17354e',secondary:'#f3f4f4',accent:'#d6b054'});
+  if(b.dataset.preset==='hoops')Object.assign(kits[activeKit],{pattern:'hoops',primary:'#0b7a3c',secondary:'#f4f4ef',accent:'#101820'});
+  if(b.dataset.preset==='redblack')Object.assign(kits[activeKit],{pattern:'stripes',primary:'#b31f2b',secondary:'#121417',accent:'#f2f2ed'});
+  syncControls();
 }));
 
-// Avatar selection remains intentionally simple in this proof; the selected Home kit is the live 3D garment underneath the portrait.
-const avatarSets={male:['avatar-male-01.jpg','avatar-male-02.jpg'],female:['avatar-female-01.jpg','avatar-female-02.jpg']};let gender='male',avatarIndex=0;
-const main=document.getElementById('player-main'),strip=document.getElementById('avatar-strip');
+const avatarSets={male:['avatar-male-01.jpg','avatar-male-02.jpg'],female:['avatar-female-01.jpg','avatar-female-02.jpg']};
+let gender='male',avatarIndex=0;
+const playerMain=document.getElementById('player-main'),strip=document.getElementById('avatar-strip');
 function renderAvatars(){
-  strip.innerHTML='';avatarSets[gender].forEach((src,i)=>{const b=document.createElement('button');b.className='avatar-choice'+(i===avatarIndex?' active':'');b.innerHTML=`<img src="${src}" alt="Avatar option">`;b.onclick=()=>{avatarIndex=i;renderAvatars()};strip.appendChild(b)});
-  main.src=avatarSets[gender][avatarIndex];document.querySelectorAll('[data-gender]').forEach(b=>b.classList.toggle('active',b.dataset.gender===gender));
+  const set=avatarSets[gender];avatarIndex=Math.max(0,Math.min(avatarIndex,set.length-1));playerMain.src=set[avatarIndex];
+  strip.innerHTML=set.map((src,i)=>`<button class="avatar-choice ${i===avatarIndex?'active':''}" data-avatar="${i}"><img src="${src}" alt="Avatar ${i+1}"></button>`).join('');
+  strip.querySelectorAll('[data-avatar]').forEach(b=>b.addEventListener('click',()=>{avatarIndex=Number(b.dataset.avatar);renderAvatars();}));
+  renderKit();
 }
-document.querySelectorAll('[data-gender]').forEach(b=>b.addEventListener('click',()=>{gender=b.dataset.gender;avatarIndex=0;renderAvatars()}));
-document.getElementById('avatar-prev').onclick=()=>{avatarIndex=(avatarIndex-1+avatarSets[gender].length)%avatarSets[gender].length;renderAvatars()};
-document.getElementById('avatar-next').onclick=()=>{avatarIndex=(avatarIndex+1)%avatarSets[gender].length;renderAvatars()};
+document.querySelectorAll('[data-gender]').forEach(b=>b.addEventListener('click',()=>{gender=b.dataset.gender;avatarIndex=0;document.querySelectorAll('[data-gender]').forEach(x=>x.classList.toggle('active',x===b));renderAvatars();}));
+document.getElementById('avatar-prev').addEventListener('click',()=>{const set=avatarSets[gender];avatarIndex=(avatarIndex-1+set.length)%set.length;renderAvatars();});
+document.getElementById('avatar-next').addEventListener('click',()=>{const set=avatarSets[gender];avatarIndex=(avatarIndex+1)%set.length;renderAvatars();});
 
-renderAvatars();syncControls();const start=(location.hash||'#home').slice(1);if(['home','kit','player'].includes(start))show(start);
+syncControls();renderAvatars();
+const initial=location.hash.replace('#','');if(['home','kit','player'].includes(initial))show(initial);
+
+// QA shortcut: ?preset=hoops#kit
+const params=new URLSearchParams(location.search);
+if(params.get('preset')==='hoops'){Object.assign(kits.home,{pattern:'hoops',primary:'#0b7a3c',secondary:'#f4f4ef',accent:'#101820'});activeKit='home';activeView='front';syncControls();show('kit');}

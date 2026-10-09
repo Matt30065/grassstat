@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>GrassSTATory Visual Proof</title>
-<link rel="stylesheet" href="style.css" />
+<title>GrassSTATory Visual Proof v1.1.1</title>
+<link rel="stylesheet" href="style.css?v=1.1.1" />
 </head>
 <body>
 <div class="app-shell">
@@ -17,11 +17,11 @@
         <button class="icon-btn" aria-label="Settings">⚙</button>
       </header>
       <div class="club-lockup">
-        <img class="club-badge" src="club-badge.svg" alt="Riverside Athletic badge" />
+        <img class="club-badge" src="club-badge.svg" alt="Club badge" />
         <h1>Riverside Athletic</h1>
         <p>U12 · 2025/26</p>
       </div>
-      <button class="primary-cta" data-nav="kit"><span>⚽</span> Create Match <b>›</b></button>
+      <button class="primary-cta" data-nav="kit"><span>⚽</span> Open Kit Studio <b>›</b></button>
     </section>
 
     <section class="content-stack">
@@ -53,13 +53,13 @@
     <section class="kit-stage">
       <div class="stage-glow"></div>
       <button class="arrow left" data-view-dir="-1">‹</button>
-      <div id="kit-3d" class="kit-three" aria-label="Interactive 3D kit preview"></div><img id="kit-fallback" class="kit-image kit-fallback" src="kit-home-front.png" alt="Kit preview">
+      <div id="kit-renderer" class="kit-renderer" aria-label="Live kit preview"></div>
       <button class="arrow right" data-view-dir="1">›</button>
       <div class="view-tabs"><button class="active" data-view="front">Front</button><button data-view="side">Side</button><button data-view="back">Back</button></div>
     </section>
     <section class="studio-panel kit-controls">
-      <div class="studio-intro"><div><span class="eyebrow">LIVE KIT DESIGN</span><h2>Pattern & colours</h2></div><span class="live-pill">Live preview</span></div>
-      <p class="studio-help">Choose a pattern, then set the three club colours. Home and away kits are saved independently.</p>
+      <div class="studio-intro"><div><span class="eyebrow">LIVE KIT DESIGN</span><h2>Pattern & colours</h2></div><span class="live-pill">v1.1.1</span></div>
+      <p class="studio-help">Choose a pattern and colours. The garment preview is generated live — there is no baked-in default shirt underneath.</p>
       <h3>Pattern</h3>
       <div class="pattern-grid" id="pattern-grid">
         <button data-pattern="plain"><em class="pat solid"></em><span>Plain</span></button>
@@ -74,7 +74,11 @@
         <label><span>Secondary</span><input type="color" id="colour-secondary" value="#f3f4f4"><b id="secondary-chip">#F3F4F4</b></label>
         <label><span>Accent</span><input type="color" id="colour-accent" value="#d6b054"><b id="accent-chip">#D6B054</b></label>
       </div>
-      <div class="preset-row"><button data-preset="classic">Navy / White / Gold</button><button data-preset="hoops">Green / White / Black</button><button data-preset="redblack">Red / Black / White</button></div>
+      <div class="preset-row">
+        <button data-preset="classic">Navy / White / Gold</button>
+        <button data-preset="hoops">Green / White / Black</button>
+        <button data-preset="redblack">Red / Black / White</button>
+      </div>
       <button class="primary-cta inline" data-nav="player">Continue to Player Creator <b>›</b></button>
     </section>
   </main>
@@ -84,9 +88,9 @@
     <section class="player-stage">
       <div class="player-glow"></div>
       <button class="arrow left" id="avatar-prev">‹</button>
-      <div class="player-composite" id="player-composite">
+      <div class="player-composite">
         <img id="player-main" class="player-head" src="avatar-male-01.jpg" alt="Anonymous player" />
-        <div id="player-kit-3d" class="player-kit-three" aria-label="Player wearing selected home kit"></div>
+        <div id="player-shirt" class="player-shirt" aria-label="Selected player kit"></div>
       </div>
       <button class="arrow right" id="avatar-next">›</button>
     </section>
@@ -98,12 +102,10 @@
         <label><span>Number</span><input value="10" inputmode="numeric" /></label>
         <label class="wide"><span>Position</span><select><option>Forward</option><option>Midfielder</option><option>Defender</option><option>Goalkeeper</option></select></label>
       </div>
-      <div class="appearance-tools"><button class="active">●<span>Appearance</span></button><button>✦<span>Hair</span></button><button>●<span>Skin tone</span></button><button>♟<span>Build</span></button></div>
       <button class="primary-cta inline">Add player to squad <b>›</b></button>
     </section>
   </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=1.1.1"></script>
 </body>
 </html>
