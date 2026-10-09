@@ -1,19 +1,533 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#06151d" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>GrassSTATory</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#06131a" />
+  <title>GrassSTATory Premium</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=2.0.0" />
+  <link rel="stylesheet" href="style.css?v=3.0.0" />
+
+  <style id="critical-ui">
+    html,body{margin:0;min-height:100%;background:#06131c;color:#f8fafc;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body.app-starting{overflow:hidden;background:#04121b}
+    body.app-starting .app-shell{visibility:hidden!important;opacity:0!important}
+    #splashScreen{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;visibility:visible;opacity:1;background:#04121b;color:#fff}
+    #splashScreen.splash-exit{visibility:visible!important;opacity:0;transition:opacity .55s ease}
+  </style>
 </head>
-<body>
-  <div id="app" class="app" aria-live="polite"></div>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <div id="overlay" class="overlay" hidden></div>
-  <div class="build-tag">v2.0.0</div>
-  <script src="app.js?v=2.0.0" defer></script>
+<body class="app-starting">
+
+  <div id="splashScreen" class="splash-screen" aria-label="GrassStatory loading">
+    <div class="splash-stadium-glow"></div>
+    <div class="splash-content">
+      <img class="splash-wordmark" src="grassstatory-wordmark.png" alt="GrassStatory — More Than A Game" width="900" height="386" />
+      <p class="splash-tagline">Your football. Your stats. Your story.</p><div class="splash-version">PREMIUM · v3.0.0</div>
+      <div class="splash-credit">
+        <span>Designed &amp; developed by</span>
+        <strong>Matt Ashby</strong>
+      </div>
+      <div class="splash-progress" aria-hidden="true"><span></span></div>
+    </div>
+  </div>
+  <main class="app-shell">
+<div class="app-brand-mini" aria-label="GrassStatory"><img src="grassstatory-app-icon.png" alt=""><strong>GrassStatory</strong></div>
+
+    <header class="app-header">
+      <div>
+        
+      </div>
+      <span class="status-dot" title="Local app"></span>
+    </header>
+
+    <div id="homeView">
+      <section class="card hero-card">
+        <p class="muted">Match day</p>
+        <div class="home-team-lockup"><div class="team-crest home-crest" id="homeTeamCrest">YTM</div><div><p class="home-team-label">YOUR CLUB</p><h2 id="homeTeamName">Your football tracker</h2></div></div>
+        <p>Start a match, check the season numbers or manage your team.</p>
+        <div class="hero-actions">
+          <button id="newMatchBtn" class="primary-btn">Create Match</button>
+          <button id="settingsBtn" class="secondary-btn">⚙ Settings</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <div>
+            <h2>Season Statistics</h2>
+            <p class="muted compact">Your season builds automatically from completed matches.</p>
+          </div>
+        </div>
+        <div id="seasonSummary" class="stat-cards"></div>
+        <div id="playerStatsTable" class="stats-table-wrap"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <div><h2>Recent Results</h2><p class="muted compact">Your latest completed matches.</p></div>
+        </div>
+        <div id="matchHistoryList" class="history-list"></div>
+      </section>
+    </div>
+
+    <div id="matchesView" class="hidden">
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">MATCHES</p><h2>Your Matches</h2><p class="muted compact">Upcoming fixtures and completed results.</p></div><button id="matchesNewBtn" class="primary-btn" type="button">New Match</button></div>
+        <div id="upcomingMatchesList" class="history-list"></div>
+        <div class="setup-section"><h3>Results</h3><div id="matchesResultsList" class="history-list"></div></div>
+      </section>
+    </div>
+
+    <div id="statsView" class="hidden">
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">2026/27</p><h2>Season Statistics</h2><p class="muted compact">Your season, broken down by competition.</p></div></div>
+        <div class="choice-row stats-filter" id="statsFilterRow"><button class="secondary-btn active-filter" data-stats-filter="All" type="button">All</button><button class="secondary-btn" data-stats-filter="League" type="button">League</button><button class="secondary-btn" data-stats-filter="Cup" type="button">Cup</button><button class="secondary-btn" data-stats-filter="Tournament" type="button">Tournament</button><button class="secondary-btn" data-stats-filter="Friendly" type="button">Friendly</button></div>
+        <div id="statsViewBody"></div>
+      </section>
+    </div>
+
+    <div id="platinumView" class="hidden">
+      <section class="card platinum-hero-card">
+        <p class="eyebrow">GRASSSTATORY PLATINUM</p>
+        <h2>Unlock your complete GrassStatory</h2>
+        <p class="muted">Every match is already building your story. Platinum lets you see it.</p>
+        <div class="platinum-feature-grid">
+          <div><strong>📊</strong><span>Full season & player stats</span></div>
+          <div><strong>🏆</strong><span>Milestones & streaks</span></div>
+          <div><strong>🔴</strong><span>Live match sharing</span></div>
+          <div><strong>⚽</strong><span>Unlimited teams</span></div>
+        </div>
+        <div class="price-panel"><div><span>Annual</span><strong>£24.99</strong><small>30 days free · best value</small></div><div><span>Monthly</span><strong>£2.99</strong><small>Cancel anytime</small></div></div>
+        <button id="startPlatinumBtn" class="primary-btn full-width" type="button">Start 30-Day Free Trial</button>
+        <p class="muted compact center-text">Production purchase flow will connect to Apple App Store / Google Play.</p>
+      </section>
+    </div>
+
+    <div id="onboardingView" class="hidden">
+      <section class="card onboarding-shell">
+        <div class="onboarding-progress">
+          <span class="onboarding-kicker">FIRST TIME SETUP</span>
+          <span id="onboardingStepLabel">1 of 3</span>
+        </div>
+        <div id="onboardingStep1" class="onboarding-step">
+          <div class="onboarding-hero">
+            <p class="eyebrow">WELCOME TO GRASSSTATORY</p>
+            <h2>Set up your team.</h2>
+            <p class="muted">Give your team an identity. Your crest and team colours will be used in matches and share cards.</p>
+          </div>
+          <div class="team-identity-grid onboarding-fields">
+            <label>Team name
+              <input id="onboardingTeamName" type="text" maxlength="40" placeholder="e.g. Riverside Athletic U12" />
+            </label>
+            <label>3-letter abbreviation
+              <input id="onboardingTeamAbbr" type="text" maxlength="3" minlength="1" placeholder="KEG" />
+            </label>
+          </div>
+          <div class="team-identity-grid onboarding-fields onboarding-extra-fields">
+            <label>Age group
+              <select id="onboardingAgeGroup"><option value="">Select age group</option><option>U7</option><option>U8</option><option>U9</option><option>U10</option><option>U11</option><option>U12</option><option>U13</option><option>U14</option><option>U15</option><option>U16</option><option>U17</option><option>U18</option><option>Adult</option></select>
+            </label>
+            <label>Season
+              <input id="onboardingSeason" type="text" maxlength="9" placeholder="2026/27" />
+            </label>
+          </div>
+          <div class="team-colour-fields onboarding-colour-fields">
+            <label>Primary team colour <input id="onboardingPrimaryColor" type="color" value="#25df72" /></label>
+            <label>Secondary team colour <input id="onboardingSecondaryColor" type="color" value="#0b2a38" /></label>
+          </div>
+          <div class="identity-preview onboarding-identity-preview">
+            <div class="team-crest onboarding-crest" id="onboardingTeamCrest">YTM</div>
+            <div class="identity-preview-copy"><span>TEAM CREST PREVIEW</span><strong>Generated from your initials and colours</strong></div>
+          </div>
+          <label class="role-select-label">How will you mainly use GrassStatory?
+            <select id="onboardingRole"><option value="Parent">Parent</option><option value="Coach">Coach / Manager</option><option value="Supporter">Supporter</option><option value="Other">Other</option></select>
+          </label>
+          <button id="onboardingNext1" class="primary-btn full-width" type="button">Continue</button>
+        </div>
+
+        <div id="onboardingStep2" class="onboarding-step hidden">
+          <div class="onboarding-hero">
+            <p class="eyebrow">STEP 2</p>
+            <h2>How does your team play?</h2>
+            <p class="muted">Pick the normal format. The number of players on the pitch follows automatically.</p>
+          </div>
+          <div id="onboardingFormatGrid" class="format-grid">
+            <button type="button" class="format-option" data-format="5"><strong>5v5</strong><span>5 on pitch</span></button>
+            <button type="button" class="format-option" data-format="7"><strong>7v7</strong><span>7 on pitch</span></button>
+            <button type="button" class="format-option" data-format="9"><strong>9v9</strong><span>9 on pitch</span></button>
+            <button type="button" class="format-option" data-format="11"><strong>11v11</strong><span>11 on pitch</span></button>
+          </div>
+          <div class="onboarding-nav"><button id="onboardingBack2" class="secondary-btn" type="button">Back</button><button id="onboardingNext2" class="primary-btn" type="button">Continue</button></div>
+        </div>
+
+        <div id="onboardingStep3" class="onboarding-step hidden">
+          <div class="onboarding-hero">
+            <p class="eyebrow">STEP 3</p>
+            <h2>Build your squad</h2>
+            <p class="muted">Add the players you expect to use. You can edit the squad later in Settings.</p>
+          </div>
+          <div class="squad-quick-add">
+            <input id="quickPlayerNumber" type="number" min="0" max="99" placeholder="#" aria-label="Shirt number" />
+            <input id="quickPlayerName" type="text" maxlength="40" placeholder="Player name" aria-label="Player name" />
+            <select id="quickPlayerPosition" aria-label="Position"><option value="">Position</option><option value="GK">GK</option><option value="DEF">DEF</option><option value="MID">MID</option><option value="FWD">FWD</option></select>
+            <button id="quickAddPlayerBtn" class="secondary-btn" type="button">+ Add</button>
+          </div>
+          <div class="onboarding-squad-head"><strong id="onboardingSquadCount">0 players</strong><button id="onboardingTestSquadBtn" class="secondary-btn compact-btn" type="button">Add test squad</button></div>
+          <div id="onboardingPlayerList" class="onboarding-player-list"></div>
+          <p id="onboardingSquadHint" class="muted compact">Add enough players to field your selected format.</p>
+          <div class="onboarding-nav"><button id="onboardingBack3" class="secondary-btn" type="button">Back</button><button id="finishOnboardingBtn" class="primary-btn" type="button" disabled>Finish setup</button></div>
+        </div>
+
+        <div id="onboardingDone" class="onboarding-step hidden">
+          <div class="onboarding-complete-mark">✓</div>
+          <p class="eyebrow">ALL SET</p>
+          <h2 id="onboardingCompleteTitle">Your club is ready.</h2>
+          <p id="onboardingCompleteMeta" class="muted">5v5 · 12 players</p>
+          <p class="muted">You can come back to Settings at any time. Your next match can be set up now, or you can head home and do it later.</p>
+          <div class="onboarding-done-actions"><button id="onboardingGoHomeBtn" class="primary-btn" type="button">Go to Home</button></div>
+        </div>
+      </section>
+    </div>
+
+    <div id="settingsView" class="hidden">
+      <section class="card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">SETTINGS</p>
+            <h2>Team & Squad</h2>
+            <p class="muted compact">Manage your match format and player list here.</p>
+          </div>
+          <button id="settingsBackBtn" class="secondary-btn">Back to Home</button>
+        </div>
+
+        <div id="firstUseBanner" class="first-use-banner hidden">
+          <p class="eyebrow">FIRST-TIME SETUP</p>
+          <h3>Let's set up your team</h3>
+          <p class="muted compact">Complete your team details and add your squad here. These settings are saved on this device, so next time New Match will take you straight to match setup.</p>
+        </div>
+
+        <div class="setup-section subscription-preview-section">
+          <h3>Developer preview</h3>
+          <p class="muted compact">Temporary developer control for testing Free and Platinum. This will be removed/replaced by real Apple/Google subscription entitlements before release.</p>
+          <div class="choice-row plan-toggle" role="group" aria-label="Developer plan preview"><label class="choice-pill"><input type="radio" name="planPreview" value="free" /> Free</label><label class="choice-pill platinum-preview-pill"><input type="radio" name="planPreview" value="platinum" /> ⭐ Platinum</label></div><p class="muted compact plan-preview-status" id="planPreviewStatus">Previewing Free</p>
+        </div>
+        <div class="setup-section first-section">
+          <h3>Team identity</h3>
+          <div class="identity-preview"><div class="team-crest settings-crest" id="settingsTeamCrest">YTM</div><div class="identity-preview-copy"><span>STANDARD TEAM CREST</span><strong id="settingsTeamPreviewName">Your Team</strong><small>Your abbreviation updates the crest automatically.</small></div></div><div class="team-identity-grid">
+            <label>Team name
+              <input id="teamName" type="text" maxlength="40" placeholder="e.g. Riverside Athletic U12" />
+            </label>
+            <label>3-letter abbreviation
+              <input id="teamAbbr" type="text" maxlength="3" minlength="1" placeholder="KEG" />
+            </label>
+          </div>
+          <p class="muted compact">The abbreviation appears inside your standard team crest.</p>
+          <div class="team-identity-grid team-detail-fields">
+            <label>Age group
+              <select id="ageGroup"><option value="">Select age group</option><option>U7</option><option>U8</option><option>U9</option><option>U10</option><option>U11</option><option>U12</option><option>U13</option><option>U14</option><option>U15</option><option>U16</option><option>U17</option><option>U18</option><option>Adult</option></select>
+            </label>
+            <label>Season
+              <input id="season" type="text" maxlength="9" placeholder="2026/27" />
+            </label>
+          </div>
+          <div class="team-colour-fields">
+            <label>Team colour <input id="primaryColor" type="color" value="#25df72" /></label>
+            <label>Secondary colour <input id="secondaryColor" type="color" value="#0b2a38" /></label>
+          </div>
+          <form id="settingsForm" class="settings-grid">
+            <label>Match format
+              <select id="matchFormat">
+                <option value="5">5-a-side</option>
+                <option value="7">7-a-side</option>
+                <option value="9">9-a-side</option>
+                <option value="11">11-a-side</option>
+              </select>
+            </label>
+            <label>Squad size
+              <input id="squadSize" type="number" min="5" max="40" value="12" />
+            </label>
+            <label>Players on pitch
+              <input id="playersOnPitch" type="number" min="1" max="11" value="5" />
+            </label>
+            <div class="settings-action">
+              <button type="submit" class="secondary-btn">Save settings</button>
+              <span id="settingsSaved" class="saved-message"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="setup-section">
+          <div class="section-heading">
+            <div>
+              <h3>Squad</h3>
+              <p id="squadCount" class="muted compact"></p>
+            </div>
+            <div class="button-row">
+              <button class="secondary-btn" id="fillTestPlayersBtn">Add test squad</button>
+              <button class="secondary-btn" id="addPlayerBtn">Add player</button>
+            </div>
+          </div>
+          <div class="setup-section gs-reset-zone"><h3>Testing & data</h3><p class="muted compact">Start again as a brand-new paying customer on this device.</p><button type="button" class="secondary-btn" id="resetAppBtn">Reset / Start Again</button></div><section class="team-switch-panel" id="teamSwitchPanel"><p class="eyebrow">MY TEAMS</p><div id="teamPreviewList"><strong>Current team</strong></div><button type="button" class="secondary-btn" id="addTeamPreviewBtn">＋ Add Team</button><p class="muted compact" id="teamPreviewNote">Platinum supports multiple teams. Full independent team storage is being prepared for the account/database stage.</p></section><div id="playerList" class="player-list"></div>
+          <div id="firstUseContinue" class="first-use-continue hidden">
+            <button type="button" id="continueToMatchBtn" class="primary-btn" disabled>Continue to New Match</button>
+            <p id="firstUseContinueHint" class="muted compact">Add enough players to form your starting team.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="matchSetupView" class="hidden">
+      <section class="card match-lobby-shell">
+        <div class="match-lobby-head">
+          <div><p class="eyebrow">MATCH LOBBY</p><h2 id="matchLobbyTitle">New Match</h2><p class="muted compact">Set up the match in four quick steps.</p></div>
+          <button id="cancelMatchSetupBtn" class="secondary-btn" type="button">Cancel</button>
+        </div>
+        <form id="matchSetupForm">
+          <div class="match-wizard-step" data-match-step="1">
+            <div class="wizard-heading"><span>1</span><div><p class="eyebrow">OPPONENT</p><h3>Who are you playing?</h3></div></div>
+            <div class="lobby-opponent-grid lobby-single-column">
+              <div class="lobby-fields">
+                <label>Opponent<input id="opponentName" type="text" placeholder="e.g. Oakwood FC" required /></label>
+                <label>Abbreviation<input id="opponentAbbr" type="text" maxlength="3" minlength="1" placeholder="LIV" required /></label>
+              </div>
+            </div>
+            <div class="opponent-preview wizard-preview"><div class="team-crest opponent-crest setup-crest" id="setupOpponentCrest">OPP</div><div><span>OPPONENT</span><strong id="setupOpponentPreviewName">Add opponent details</strong></div></div>
+            <div class="wizard-actions"><button class="primary-btn full-width" type="button" data-match-next="2">Next</button></div>
+          </div>
+
+          <div class="match-wizard-step hidden" data-match-step="2">
+            <div class="wizard-heading"><span>2</span><div><p class="eyebrow">MATCH</p><h3>When and where?</h3></div></div>
+            <div class="lobby-fields two-column-mobile">
+              <label>Date<input id="matchDate" type="date" required /></label>
+              <label>Competition<select id="matchCompetition"><option value="League">League</option><option value="Cup">Cup</option><option value="Tournament">Tournament</option><option value="Friendly">Friendly</option></select></label>
+            </div>
+            <div class="lobby-row"><div><span class="eyebrow">VENUE</span><div class="choice-row"><label class="choice-pill"><input type="radio" name="venue" value="home" checked /> Home</label><label class="choice-pill"><input type="radio" name="venue" value="away" /> Away</label></div></div><div class="lobby-format-pill"><span>FORMAT</span><strong id="lobbyFormatText">5v5</strong></div></div>
+            <div class="wizard-actions"><button class="secondary-btn" type="button" data-match-back="1">Back</button><button class="primary-btn" type="button" data-match-next="3">Next</button></div>
+          </div>
+
+          <div class="match-wizard-step hidden" data-match-step="3">
+            <div class="wizard-heading"><span>3</span><div><p class="eyebrow">MATCH SQUAD</p><h3>Who's available?</h3></div></div>
+            <div class="lobby-selection-card">
+              <div class="section-heading"><div><h3><span id="availableCount">0 available</span></h3><p class="muted compact">Everyone is available by default.</p></div><button id="toggleAvailabilityBtn" class="secondary-btn compact-btn" type="button">Change availability</button></div>
+              <div id="availabilityWrap" class="collapsible-panel hidden"><div id="availabilityList" class="selection-list"></div></div>
+            </div>
+            <div class="wizard-actions"><button class="secondary-btn" type="button" data-match-back="2">Back</button><button class="primary-btn" type="button" data-match-next="4">Next</button></div>
+          </div>
+
+          <div class="match-wizard-step hidden" data-match-step="4">
+            <div class="wizard-heading"><span>4</span><div><p class="eyebrow">STARTING TEAM</p><h3>Who starts?</h3></div></div>
+            <div class="lobby-selection-card">
+              <div class="section-heading"><div><h3 id="startingTeamHeading">Starting 5</h3><p class="muted compact">Your last starting team is used where possible.</p></div><span id="starterCount" class="count-badge"></span></div>
+              <div id="starterList" class="selection-list"></div>
+              <div class="bench-preview"><span class="eyebrow">BENCH</span><div id="substituteList" class="summary-list"></div></div>
+            </div>
+            <div id="milestoneWatchPanel" class="milestone-watch-panel hidden">
+              <div class="milestone-watch-head"><div><p class="eyebrow">PLATINUM</p><h3>🏆 Today's Milestone Watch</h3><p class="muted compact">Possible milestones based on today's squad.</p></div><button id="shareMilestoneWatchBtn" class="secondary-btn compact-btn" type="button">Share</button></div>
+              <div id="milestoneWatchList" class="milestone-list"></div>
+            </div>
+            <p id="matchSetupError" class="error-message" aria-live="polite"></p>
+            <div class="wizard-actions"><button class="secondary-btn" type="button" data-match-back="3">Back</button><button type="submit" class="primary-btn">START MATCH</button></div>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="liveMatchView"<div id="liveMatchView" class="hidden">
+      <section class="card live-card">
+        <div class="live-topbar">
+          <div><p class="eyebrow">LIVE MATCH</p><p id="liveMeta" class="muted compact"></p></div>
+          <button id="exitLiveMatchBtn" class="secondary-btn icon-btn" aria-label="Exit match">✕</button>
+        </div>
+
+        <div class="scoreboard-hero">
+          <div class="team-panel team-panel-ours">
+            <div class="team-crest" id="ourTeamCrest" aria-label="Our team">KEG</div>
+            <div class="team-name" id="ourTeamName">Our Team</div>
+          </div>
+          <div class="score-centre">
+            <div class="match-stage">MATCH DAY</div>
+            <div class="scoreline"><strong id="ourScore">0</strong><span class="score-divider">-</span><strong id="theirScore">0</strong></div>
+            <div class="match-clock-pill"><span id="matchClock">00:00</span><small id="matchPeriod">1st half</small></div>
+            <div class="period-status"><span id="periodLabel">1st Half</span><span id="periodMessage"></span></div>
+            <button id="timerBtn" class="primary-btn timer-btn">Start</button>
+          </div>
+          <div class="team-panel team-panel-opponent">
+            <div class="team-crest opponent-crest" id="opponentTeamCrest" aria-label="Opponent">OPP</div>
+            <div class="team-name" id="opponentScoreName">Opponent</div>
+          </div>
+        </div>
+
+        <div class="score-meta-line"><span>ON PITCH</span><strong id="livePlayerCount">5v5</strong><span id="clockStatus">Paused</span></div>
+
+        <div class="period-controls">
+          <button id="halfTimeBtn" class="secondary-btn">Half Time</button>
+          <button id="startSecondHalfBtn" class="primary-btn hidden">Start 2nd Half</button>
+          <button id="fullTimeBtn" class="danger-btn hidden">Full Time</button>
+        </div>
+
+        <div class="live-actions">
+          <button id="ourGoalBtn" class="action-btn goal-btn">⚽ Our Goal</button>
+          <button id="subBtn" class="action-btn">🔄 Substitution</button>
+          <button id="theirGoalBtn" class="action-btn">⚽ Opponent Goal</button>
+          <button id="undoBtn" class="action-btn">↩ Undo Last</button>
+          <button id="shareLiveBtn" class="action-btn share-live-btn">🔴 Share Live</button>
+        </div>
+        <div class="players-on-pitch-panel" id="playersOnPitchPanel">
+          <div class="players-on-pitch-head">
+            <div>
+              <div class="players-on-pitch-kicker">MATCH STATE</div>
+              <div class="players-on-pitch-title">👥 Players on Pitch</div>
+              <div class="players-on-pitch-status" id="playersOnPitchStatus">Adjust who is actually on the field.</div>
+            </div>
+            <button id="adjustPlayersBtn" class="secondary-btn" type="button">Adjust Players</button>
+          </div>
+        </div>
+
+        <div class="live-columns">
+          <div><h3>On pitch</h3><div id="liveStarters" class="summary-list"></div></div>
+          <div><h3>Substitutes</h3><div id="liveSubs" class="summary-list"></div></div>
+        </div>
+
+        <div class="setup-section"><h3>Match events</h3><div id="eventTimeline" class="event-list"></div></div>
+      </section>
+    </div>
+
+    <div id="matchReportView" class="hidden">
+      <section class="card result-card-shell">
+        <div class="result-topbar">
+          <button id="reportBackBtn" class="secondary-btn compact-btn">‹ Home</button>
+          <div class="result-competition"><span>MATCH RESULT</span><strong id="reportMeta"></strong><small id="reportCompetition"></small></div>
+          <button id="shareResultBtn" class="secondary-btn compact-btn">Share ↗</button>
+        </div>
+
+        <div class="result-hero">
+          <div class="result-team">
+            <span class="team-crest result-crest" id="reportOurCrest">YTM</span>
+            <strong id="reportOurName">Your Team</strong>
+            <div id="reportOurScorers" class="result-scorers"></div>
+          </div>
+          <div class="result-score-centre">
+            <span class="result-status">FULL TIME</span>
+            <div class="result-scoreline"><strong id="reportOurScore">0</strong><span>–</span><strong id="reportTheirScore">0</strong></div>
+            <div class="result-ht">HT <strong id="reportHalfScore">0 - 0</strong></div>
+          </div>
+          <div class="result-team">
+            <span class="team-crest result-crest opponent-crest" id="reportOpponentCrest">OPP</span>
+            <strong id="reportOpponent"></strong>
+            <div id="reportTheirScorers" class="result-scorers"></div>
+          </div>
+        </div>
+
+        <div id="reportAssistSummary" class="result-assists hidden"></div>
+        <div id="reportMilestones" class="milestone-achieved hidden"></div>
+
+        <div class="result-actions-primary">
+          <button id="toggleMatchDetailsBtn" class="secondary-btn">Match Details</button>
+          <button id="reportHomeBtn" class="primary-btn">New Match</button>
+        </div>
+
+        <div id="reportDetailsPanel" class="report-details-panel hidden">
+          <div class="report-grid">
+            <div class="setup-section"><h3>Goals</h3><div id="reportGoals" class="event-list"></div></div>
+            <div class="setup-section"><h3>Substitutions</h3><div id="reportSubs" class="event-list"></div></div>
+          </div>
+          <div class="report-grid">
+            <div class="setup-section"><h3>Starting team</h3><div id="reportStarters" class="summary-list"></div></div>
+            <div class="setup-section"><h3>Substitutes</h3><div id="reportSubstitutes" class="summary-list"></div></div>
+          </div>
+          <div class="report-actions"><button id="deleteMatchBtn" class="danger-btn">Delete Match</button></div>
+        </div>
+      </section>
+    </div>
+  </main>
+    <nav class="bottom-nav" aria-label="Primary">
+      <button type="button" class="bottom-nav-item is-active" data-nav="home">🏠<span>Home</span></button>
+      <button type="button" class="bottom-nav-item" data-nav="matches">⚽<span>Matches</span></button>
+      <button type="button" class="bottom-nav-item" data-nav="stats">📊<span>Stats</span></button>
+      <button type="button" class="bottom-nav-item" data-nav="team">👥<span>Team</span></button>
+      <button type="button" class="bottom-nav-item" data-nav="settings">•••<span>More</span></button>
+    </nav>
+
+
+  <dialog id="playerDialog"><form id="playerForm" class="dialog-card"><h2 id="playerDialogTitle">Add player</h2><label>Name<input id="playerName" type="text" required /></label><label>Shirt number<input id="playerNumber" type="number" min="0" max="99" /></label><label>Position<select id="playerPosition"><option value="">Not set</option><option value="GK">Goalkeeper</option><option value="DEF">Defender</option><option value="MID">Midfielder</option><option value="FWD">Forward</option></select></label><div class="dialog-actions"><button type="button" class="danger-btn hidden" id="deletePlayerBtn">Delete</button><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPlayerBtn">Cancel</button><button type="submit" class="primary-btn">Save player</button></div></form></dialog>
+
+  <dialog id="goalDialog">
+    <form class="dialog-card" onsubmit="return false;">
+      <h2 id="goalDialogTitle">Goal</h2>
+      <div id="goalPlayerSection">
+        <label>Scorer
+          <select id="goalScorer"></select>
+        </label>
+        <label>Assist
+          <select id="goalAssist"><option value="">No Assist</option></select>
+        </label>
+      </div>
+      <label>Goal type
+        <select id="goalType"><option value="normal">Normal</option><option value="penalty">Penalty</option><option value="own_goal">Own Goal</option></select>
+      </label>
+      <label id="ownGoalPlayerWrap" class="hidden">Own goal by (optional)
+        <select id="ownGoalPlayer"><option value="">Not specified</option></select>
+      </label>
+      <div class="dialog-actions">
+        <span class="dialog-spacer"></span>
+        <button type="button" class="secondary-btn" id="cancelGoalBtn">Cancel</button>
+        <button type="button" class="primary-btn" id="saveGoalBtn">Record goal</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="subDialog"><form id="subForm" class="dialog-card batch-sub-dialog"><div class="dialog-kicker">QUICK SUBS</div><h2>Make substitutions</h2><p class="muted compact">Select everyone coming off, then the same number coming on. All changes are recorded at the current match minute.</p><div class="batch-sub-grid"><div><h3>OFF <span id="subOffCount" class="count-badge">0</span></h3><div id="subOffList" class="dialog-choice-list"></div></div><div><h3>ON <span id="subOnCount" class="count-badge">0</span></h3><div id="subOnList" class="dialog-choice-list"></div></div></div><p id="subBatchHint" class="muted compact"></p><div class="dialog-actions"><button type="button" class="secondary-btn" id="cancelSubBtn">Cancel</button><span class="dialog-spacer"></span><button type="submit" class="primary-btn" id="saveBatchSubsBtn" type="submit" disabled>Save substitutions</button></div></form></dialog>
+
+  <dialog id="adjustPlayersDialog">
+    <form class="dialog-card adjust-players-dialog" id="adjustPlayersForm" onsubmit="return false;">
+      <div class="dialog-kicker">MATCH STATE</div>
+      <h2>Players on Pitch</h2>
+      <p class="muted compact">Set who is actually on the field. This is independent of substitutions and can be adjusted for any circumstance.</p>
+      <div class="adjust-team-grid">
+        <section>
+          <div class="adjust-team-head"><h3 id="adjustOurTeamName">Our Team</h3><span id="adjustOurCount" class="count-badge">5</span></div>
+          <div class="adjust-pane-title">ON PITCH</div>
+          <div id="adjustOurOnList" class="dialog-choice-list"></div>
+          <div class="adjust-pane-title">OFF PITCH</div>
+          <div id="adjustOurOffList" class="dialog-choice-list"></div>
+        </section>
+        <section>
+          <div class="adjust-team-head"><h3 id="adjustOpponentName">Opponent</h3><span id="adjustOpponentCount" class="count-badge">5</span></div>
+          <div class="adjust-opponent-count">
+            <button id="oppCountMinus" class="secondary-btn count-control" type="button">−</button>
+            <strong id="oppCountValue">5</strong>
+            <button id="oppCountPlus" class="secondary-btn count-control" type="button">+</button>
+          </div>
+          <p class="muted compact">Opposition player identities are not stored.</p>
+        </section>
+      </div>
+      <p id="adjustPlayersHint" class="muted compact"></p>
+      <div class="dialog-actions"><button type="button" class="secondary-btn" id="cancelAdjustPlayersBtn">Cancel</button><span class="dialog-spacer"></span><button type="button" class="primary-btn" id="saveAdjustPlayersBtn">Save changes</button></div>
+    </form>
+  </dialog>
+
+  <script>
+    (() => {
+      const splash = document.getElementById('splashScreen');
+      if (!splash) {
+        document.body.classList.remove('app-starting');
+        return;
+      }
+      const DISPLAY_MS = 3500;
+      const FADE_MS = 550;
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        splash.classList.add('splash-exit');
+        window.setTimeout(() => {
+          splash.remove();
+          document.body.classList.remove('app-starting');
+        }, FADE_MS);
+      };
+      window.setTimeout(finish, DISPLAY_MS);
+    })();
+  </script>
+  <script src="app.js?v=3.0.0"></script>
 </body>
 </html>

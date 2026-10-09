@@ -1,29 +1,27 @@
-# GrassSTATory v2.0.0 — fresh working app baseline
+# GrassSTATory v3.0.0 — Original Engine / Premium Visual Integration
 
-This is the first end-to-end build based on the approved fresh visual proof.
+This build deliberately uses the original v21.1 match engine and event-recording journey as the functional source of truth, while applying the newer premium GrassSTATory visual system.
 
-## What is included
+## Preserved from the original app
+- Match setup and starting-team logic
+- Live timer and half-time/full-time controls
+- Goal recording with scorer, assist and existing Normal / Penalty / Own Goal types
+- Multi-player substitutions: select several players off and the same number on in one action
+- Undo, player-count adjustments, match history, reports and statistics
+- Existing localStorage structure
 
-- Splash and first-use setup
-- Club identity using Home/Away colour palettes
-- Player creation using premium identity cards (no avatars / no kit renderer)
-- Home with Create Match, Upcoming Moments and Recent Results
-- Match setup: opponent, match details, available squad, starting lineup and automatic bench
-- Live Match clock, Goal, Substitution, Opposition Goal and Undo
-- Sequential goal flow: Scorer → Normal/Penalty/Own Goal → Assist/No Assist
-- Goal celebration and First Goal / milestone Moment overlays
-- Full Time result and event timeline
-- Player Stats carousel, Season Stats and Moments
-- Match history
-- Settings with Reset / Start Again
-- Local browser persistence only; no backend/account yet
+## Visual integration
+- Stadium imagery on Home, Live Match and Full Time
+- Premium dark navy / gold design system
+- Club-colour player identity cards instead of avatars or generated kits
+- Compact player tiles in squad, lineup, bench and live views
+- Medium portrait Player Stats cards
+- Recent Results presentation
+- Paying/Platinum experience is assumed
+- Reset / Start Again control in Settings for testing first use
 
-## GitHub Pages
+## Deploy
+Upload all files in this folder to the root of the GitHub Pages repository. No service worker is included.
 
-Upload every file in this folder directly to the repository root. Configure GitHub Pages to deploy from `main / (root)`.
-
-The app uses the storage namespace `grassstatory.fresh.v2`, so older GrassSTATory repositories on the same GitHub Pages domain will not contaminate this build.
-
-## Testing first use
-
-Settings → Reset / Start Again returns the app to the splash and clears only this build's local data.
+### Storage isolation
+v3 uses its own `grassstatory.v3.*` localStorage keys so old prototypes on the same GitHub Pages domain cannot leak squads/matches into this build.
