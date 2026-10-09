@@ -1,15 +1,13 @@
-# GrassSTATory Fresh Visual Proof v1.2.2
+# GrassSTATory Fresh Visual Proof v1.2.3
 
-This proof refines the player identity card system only.
+This visual proof refines the player identity card without changing the approved visual direction.
 
-## Changes from v1.2.1
-- Main player name is centred above the shirt-style number.
-- Removed the internal-looking `PLAYER IDENTITY` label.
-- Position is now a small centred secondary label.
-- Name and number use a stronger football-shirt / sports-card typographic treatment.
-- Signature treatment remains in the bottom-right.
-- Added-player squad tiles are substantially smaller and now display three across on a typical phone.
-- Compact tiles centre the club name, number, player name and position.
-- Home/away colour palettes continue to drive both the full player card and squad tiles.
+Changes from v1.2.2:
+- Main player card is about 25% shorter to remove unused vertical space.
+- Player name, number and position are grouped more tightly.
+- Position sits directly beneath the number.
+- Signature remains anchored bottom-right.
+- Compact squad identity tiles are substantially smaller and display four across on normal phone widths (three across on very narrow screens).
+- Club, name, number, position and signature remain centred/aligned.
 
-The build remains intentionally self-contained: CSS and JavaScript are embedded in `index.html`.
+This is still a visual proof, not the full GrassSTATory application.
