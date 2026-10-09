@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>GrassSTATory Visual Proof</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app-shell">
+  <main id="screen-home" class="screen is-active" data-screen="home">
+    <section class="hero home-hero">
+      <div class="hero-shade"></div>
+      <header class="topbar">
+        <button class="icon-btn" aria-label="Menu">☰</button>
+        <div class="wordmark">Grass<span>STAT</span>ory</div>
+        <button class="icon-btn" aria-label="Settings">⚙</button>
+      </header>
+      <div class="club-lockup">
+        <img class="club-badge" src="club-badge.svg" alt="Riverside Athletic badge" />
+        <h1>Riverside Athletic</h1>
+        <p>U12 · 2025/26</p>
+      </div>
+      <button class="primary-cta" data-nav="kit"><span>⚽</span> Create Match <b>›</b></button>
+    </section>
+
+    <section class="content-stack">
+      <div class="section-head"><h2>Upcoming Moments</h2><span>3 nearby</span></div>
+      <div class="moment-list">
+        <article class="moment-row"><div class="moment-icon team">★</div><div><strong>Team</strong><small>Score 10 goals this season</small></div><b>8/10</b></article>
+        <article class="moment-row"><img src="avatar-male-01.jpg" alt="Leo"/><div><strong>Leo Carter</strong><small>Reach 25 career goals</small></div><b>22/25</b></article>
+        <article class="moment-row"><img src="avatar-female-01.jpg" alt="Mia"/><div><strong>Mia Evans</strong><small>Make 10 assists</small></div><b>7/10</b></article>
+      </div>
+      <div class="section-head results-head"><h2>Recent Results</h2><button>View all ›</button></div>
+      <div class="results-card">
+        <div><i class="win">W</i><span>Riverside</span><strong>5–1</strong><span>United</span><time>12 Apr</time></div>
+        <div><i class="draw">D</i><span>Rovers</span><strong>2–2</strong><span>Riverside</span><time>5 Apr</time></div>
+        <div><i class="win">W</i><span>Riverside</span><strong>3–0</strong><span>City</span><time>29 Mar</time></div>
+      </div>
+    </section>
+    <nav class="bottom-nav">
+      <button class="active">⌂<span>Home</span></button>
+      <button>▣<span>Matches</span></button>
+      <button>♟<span>Squad</span></button>
+      <button>▥<span>Stats</span></button>
+      <button>⋯<span>More</span></button>
+    </nav>
+  </main>
+
+  <main id="screen-kit" class="screen" data-screen="kit">
+    <header class="pagebar"><button class="back" data-nav="home">‹</button><h1>Kit Studio</h1><button class="save">Save</button></header>
+    <div class="segmented"><button class="active" data-kit="home">Home Kit</button><button data-kit="away">Away Kit</button></div>
+    <section class="kit-stage">
+      <div class="stage-glow"></div>
+      <button class="arrow left" data-view-dir="-1">‹</button>
+      <img id="kit-image" class="kit-image" src="kit-home-front.png" alt="Home kit" />
+      <button class="arrow right" data-view-dir="1">›</button>
+      <div class="view-tabs"><button class="active" data-view="front">Front</button><button data-view="side">Side</button><button data-view="back">Back</button></div>
+    </section>
+    <section class="studio-panel">
+      <div class="tool-tabs">
+        <button class="active">◉<span>Design</span></button><button>◌<span>Colours</span></button><button>⌁<span>Collar</span></button><button>◫<span>Sleeves</span></button><button>◇<span>Badge</span></button>
+      </div>
+      <h2>Pattern</h2>
+      <div class="pattern-grid">
+        <button><em class="pat solid"></em><span>Plain</span></button>
+        <button class="selected"><em class="pat stripes"></em><span>Stripes</span></button>
+        <button><em class="pat hoops"></em><span>Hoops</span></button>
+        <button><em class="pat halves"></em><span>Halves</span></button>
+        <button><em class="pat sash"></em><span>Sash</span></button>
+      </div>
+      <h2>Colours</h2>
+      <div class="swatches"><button class="navy"></button><button class="white"></button><button class="gold"></button><button class="green"></button><button class="red"></button></div>
+      <button class="primary-cta inline" data-nav="player">Continue to Player Creator <b>›</b></button>
+    </section>
+  </main>
+
+  <main id="screen-player" class="screen" data-screen="player">
+    <header class="pagebar"><button class="back" data-nav="kit">‹</button><h1>Create Player</h1><button class="save">Save</button></header>
+    <section class="player-stage">
+      <div class="player-glow"></div>
+      <button class="arrow left" id="avatar-prev">‹</button>
+      <img id="player-main" src="avatar-male-01.jpg" alt="Anonymous player" />
+      <button class="arrow right" id="avatar-next">›</button>
+    </section>
+    <div class="segmented gender"><button class="active" data-gender="male">Male</button><button data-gender="female">Female</button></div>
+    <section class="creator-panel">
+      <div class="avatar-strip" id="avatar-strip"></div>
+      <div class="field-grid">
+        <label><span>Player name</span><input value="Leo Carter" /></label>
+        <label><span>Number</span><input value="10" inputmode="numeric" /></label>
+        <label class="wide"><span>Position</span><select><option>Forward</option><option>Midfielder</option><option>Defender</option><option>Goalkeeper</option></select></label>
+      </div>
+      <div class="appearance-tools"><button class="active">●<span>Appearance</span></button><button>✦<span>Hair</span></button><button>●<span>Skin tone</span></button><button>♟<span>Build</span></button></div>
+      <button class="primary-cta inline">Add player to squad <b>›</b></button>
+    </section>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
