@@ -53,24 +53,28 @@
     <section class="kit-stage">
       <div class="stage-glow"></div>
       <button class="arrow left" data-view-dir="-1">‹</button>
-      <img id="kit-image" class="kit-image" src="kit-home-front.png" alt="Home kit" />
+      <div id="kit-3d" class="kit-three" aria-label="Interactive 3D kit preview"></div><img id="kit-fallback" class="kit-image kit-fallback" src="kit-home-front.png" alt="Kit preview">
       <button class="arrow right" data-view-dir="1">›</button>
       <div class="view-tabs"><button class="active" data-view="front">Front</button><button data-view="side">Side</button><button data-view="back">Back</button></div>
     </section>
-    <section class="studio-panel">
-      <div class="tool-tabs">
-        <button class="active">◉<span>Design</span></button><button>◌<span>Colours</span></button><button>⌁<span>Collar</span></button><button>◫<span>Sleeves</span></button><button>◇<span>Badge</span></button>
+    <section class="studio-panel kit-controls">
+      <div class="studio-intro"><div><span class="eyebrow">LIVE KIT DESIGN</span><h2>Pattern & colours</h2></div><span class="live-pill">Live preview</span></div>
+      <p class="studio-help">Choose a pattern, then set the three club colours. Home and away kits are saved independently.</p>
+      <h3>Pattern</h3>
+      <div class="pattern-grid" id="pattern-grid">
+        <button data-pattern="plain"><em class="pat solid"></em><span>Plain</span></button>
+        <button class="selected" data-pattern="stripes"><em class="pat stripes"></em><span>Stripes</span></button>
+        <button data-pattern="hoops"><em class="pat hoops"></em><span>Hoops</span></button>
+        <button data-pattern="halves"><em class="pat halves"></em><span>Halves</span></button>
+        <button data-pattern="sash"><em class="pat sash"></em><span>Sash</span></button>
       </div>
-      <h2>Pattern</h2>
-      <div class="pattern-grid">
-        <button><em class="pat solid"></em><span>Plain</span></button>
-        <button class="selected"><em class="pat stripes"></em><span>Stripes</span></button>
-        <button><em class="pat hoops"></em><span>Hoops</span></button>
-        <button><em class="pat halves"></em><span>Halves</span></button>
-        <button><em class="pat sash"></em><span>Sash</span></button>
+      <h3>Colours</h3>
+      <div class="colour-grid">
+        <label><span>Primary</span><input type="color" id="colour-primary" value="#17354e"><b id="primary-chip">#17354E</b></label>
+        <label><span>Secondary</span><input type="color" id="colour-secondary" value="#f3f4f4"><b id="secondary-chip">#F3F4F4</b></label>
+        <label><span>Accent</span><input type="color" id="colour-accent" value="#d6b054"><b id="accent-chip">#D6B054</b></label>
       </div>
-      <h2>Colours</h2>
-      <div class="swatches"><button class="navy"></button><button class="white"></button><button class="gold"></button><button class="green"></button><button class="red"></button></div>
+      <div class="preset-row"><button data-preset="classic">Navy / White / Gold</button><button data-preset="hoops">Green / White / Black</button><button data-preset="redblack">Red / Black / White</button></div>
       <button class="primary-cta inline" data-nav="player">Continue to Player Creator <b>›</b></button>
     </section>
   </main>
@@ -80,7 +84,10 @@
     <section class="player-stage">
       <div class="player-glow"></div>
       <button class="arrow left" id="avatar-prev">‹</button>
-      <img id="player-main" src="avatar-male-01.jpg" alt="Anonymous player" />
+      <div class="player-composite" id="player-composite">
+        <img id="player-main" class="player-head" src="avatar-male-01.jpg" alt="Anonymous player" />
+        <div id="player-kit-3d" class="player-kit-three" aria-label="Player wearing selected home kit"></div>
+      </div>
       <button class="arrow right" id="avatar-next">›</button>
     </section>
     <div class="segmented gender"><button class="active" data-gender="male">Male</button><button data-gender="female">Female</button></div>
@@ -96,6 +103,7 @@
     </section>
   </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
