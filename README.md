@@ -1,19 +1,16 @@
-# GrassSTATory Fresh Visual Proof v1.1.1
+# GrassSTATory Fresh Visual Proof v1.2.0
 
-This is the corrected, self-contained visual proof for Home, Kit Studio and Create Player.
+This proof deliberately removes dynamic kit rendering and human avatars.
 
-## What changed from v1.1
+## New direction
+- Home and Away identity = primary + secondary colours only.
+- Create Player = player name, number and position.
+- GrassSTATory generates a premium player identity card using club name, colour palette, stadium imagery, large number and an autograph-style name mark.
+- Home/Away card palette can be previewed.
+- Added players appear as compact card identities suitable for later squad/live-match use.
 
-- No external Three.js dependency.
-- No baked-in Riverside shirt underneath the live preview.
-- The kit is generated live from the selected pattern and three colours.
-- Home and Away kits are independent.
-- Front / Side / Back views are generated locally.
-- The exact selected Home kit is also used in Create Player.
-- The colour controls and preset buttons are fully styled by the included CSS.
-- Visible version marker: v1.1.1 in Kit Studio.
-- CSS/JS references include a version query to reduce browser-cache confusion on GitHub Pages.
+## Why
+This removes the two least reliable parts of previous prototypes — realistic configurable shirts and realistic anonymous human compositing — while preserving strong team/player identity and a premium sports-product aesthetic.
 
-## Upload
-
-Upload every file in this folder to the root of the fresh repository. There is no external runtime dependency.
+## GitHub
+Upload all files in this folder to the root of a clean GitHub Pages repository. No subdirectories or external libraries are required.
