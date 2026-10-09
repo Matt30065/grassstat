@@ -1,0 +1,9 @@
+{
+  "name": "GrassSTATory",
+  "short_name": "GrassSTATory",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#06151d",
+  "theme_color": "#06151d",
+  "description": "Grassroots football match tracking, player stats and moments."
+}
